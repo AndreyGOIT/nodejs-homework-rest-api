@@ -1,7 +1,5 @@
-const contactOperations = require("../models/contacts");
-const schema = require("../schemas/validation");
-
-const { addContact } = contactOperations;
+const service = require("../../service/index");
+const schema = require("../../service/schemas/validation");
 
 const createContact = async (req, res, next) => {
   const { name, email, phone } = req.body;
@@ -16,17 +14,19 @@ const createContact = async (req, res, next) => {
     try {
       const value = await schema.validateAsync({ name, email, phone });
       console.log(value);
-      const newContacts = await addContact(value);
-      console.log(newContacts);
+      const newContact = await service.createCont(value);
+      console.log(newContact);
       res.status(201).json({
-        status: 201,
+        status: "success",
+        code: 201,
         data: {
-          newContacts,
+          newContact,
         },
       });
     } catch (error) {
       res.status(400).json({ message: error.message });
       console.log(error.message);
+      next(error);
     }
   }
 };
