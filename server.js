@@ -15,8 +15,12 @@ app.use(express.json());
 // cors
 app.use(cors());
 
-const contactsRouter = require("./routes/api/contacts");
-app.use("/api", contactsRouter);
+const contactsRouter = require("./routes/api/contactsRouter");
+const usersRouter = require("./routes/usersRouter");
+const authRouter = require("./routes/authRouter");
+app.use("/api/contacts", contactsRouter);
+app.use("/api/auth", authRouter);
+app.use("/api/users", usersRouter);
 
 // catch 404 and forward to error handler
 app.use((req, res, next) => {
