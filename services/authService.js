@@ -1,12 +1,36 @@
 const bcrypt = require("bcrypt");
+const { response } = require("express");
 const jwt = require("jsonwebtoken");
 const User = require("../models/userModel");
 const { NotAuthorisedError } = require("../services/errors");
 
 const registration = async (email, password) => {
-  const user = new User({ email, password: await bcrypt.hash(password, 10) });
+  const existingUser = await User.findOne({ email });
 
-  await user.save();
+  if (existingUser) {
+    return response.status(409).json({
+      status: "error",
+      code: 409,
+      message: "User already exists",
+      data: "Conflict",
+    });
+  }
+  try {
+    const newUser = new User({ email, password, subscription: "starter" });
+    newUser.setPassword(password);
+
+    await newUser.save();
+    response.status(201).json({
+      status: "success",
+      code: 201,
+      data: {
+        message: "User created successfully",
+      },
+      user: newUser,
+    });
+  } catch (error) {
+    console.log(error.message);
+  }
 };
 
 const login = async (email, password) => {
