@@ -1,10 +1,10 @@
 const express = require("express");
-
 const router = express.Router();
 
 const asyncHandler = require("express-async-handler");
 
-// const {} = require("../../controllers/users/index");
+const { userController } = require("../../controllers/users/index");
 
-router.get("/register", asyncHandler());
+router.get("/list", asyncHandler(userController));
+
 module.exports = router;

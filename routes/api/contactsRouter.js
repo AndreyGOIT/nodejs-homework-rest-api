@@ -2,6 +2,7 @@ const express = require("express");
 
 const router = express.Router();
 
+const { authMiddleware } = require("../middleware/authMiddleware");
 const asyncHandler = require("express-async-handler");
 
 const {
@@ -12,6 +13,8 @@ const {
   updateCont,
   updateStatus,
 } = require("../../controllers/contacts/index");
+
+router.use(authMiddleware);
 
 router.get("/", asyncHandler(getAllConts));
 
