@@ -1,8 +1,11 @@
 const Cont = require("../models/contactModel");
 console.log(Cont);
 
-const getAllcontacts = async () => {
-  const contacts = await Cont.find();
+const getAllcontacts = async (userId, { skip, limit }) => {
+  const contacts = await Cont.find({ userId })
+    .skip(skip)
+    .limit(limit)
+    .sort({ favorite: true });
   console.log(contacts);
   return contacts;
 };

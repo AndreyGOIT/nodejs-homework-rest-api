@@ -5,6 +5,7 @@ require("colors");
 require("dotenv").config();
 
 const connectDB = require("./database/connection");
+const auth = require("./middlewares/authMiddleware");
 
 const app = express();
 
@@ -16,16 +17,24 @@ app.use(express.json());
 app.use(cors());
 
 const contactsRouter = require("./routes/api/contactsRouter");
-const usersRouter = require("./routes/usersRouter");
-const authRouter = require("./routes/authRouter");
+const usersRouter = require("./routes/api/usersRouter");
+const authRouter = require("./routes/api/authRouter");
 app.use("/api/contacts", contactsRouter);
 app.use("/api/auth", authRouter);
-app.use("/api/users", usersRouter);
+app.use("/api/users", auth, usersRouter);
 
 // catch 404 and forward to error handler
 app.use((req, res, next) => {
   console.log("404: Not found");
-  res.status(404).json({ status: "error", code: 404, message: "Not found" });
+  res.status(404).json({
+    status: "error",
+    code: 404,
+    message: `Use api on routes: 
+  /api/registration - registration user {username, email, password}
+  /api/login - login {email, password}
+  /api/list - get message if user is authenticated`,
+    data: "Not found",
+  });
   next();
 });
 
