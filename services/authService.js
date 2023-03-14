@@ -50,7 +50,11 @@ const login = async (email, password) => {
   const token = jwt.sign({ _id: user._id }, process.env.JWT_SECRET, {
     expiresIn: "1h",
   });
-  return token;
+  return response.status(200).json({
+    status: "OK",
+    code: 200,
+    data: { token },
+  });
 };
 
 module.exports = {
