@@ -35,7 +35,7 @@ const registration = async (email, password) => {
 
 const login = async (email, password) => {
   const user = await User.findOne({ email });
-
+  console.log(user);
   if (!user || !user.validPassword(password)) {
     return response.status(400).json({
       status: "error",

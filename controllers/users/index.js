@@ -1,3 +1,7 @@
-const { getAllUsers, getUserById } = require("./usersController");
+const {
+  getAllUsers,
+  getUserById,
+  getUserByToken,
+} = require("./usersController");
 
-module.exports = { getAllUsers, getUserById };
+module.exports = { getAllUsers, getUserById, getUserByToken };
