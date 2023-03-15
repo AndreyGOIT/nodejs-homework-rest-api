@@ -2,14 +2,14 @@ const express = require("express");
 
 const router = express.Router();
 
+const auth = require("../../middlewares/auth");
+
 const asyncHandler = require("express-async-handler");
 
-const {
-  registrationController,
-  loginController,
-} = require("../../controllers/auth/index");
+const { registration, login, logout } = require("../../controllers/auth/index");
 
-router.post("/register", asyncHandler(registrationController));
-router.post("/login", asyncHandler(loginController));
+router.post("/register", asyncHandler(registration));
+router.post("/login", asyncHandler(login));
+router.post("/logout", auth, asyncHandler(logout));
 
 module.exports = router;
