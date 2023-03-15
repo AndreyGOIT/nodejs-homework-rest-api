@@ -5,25 +5,25 @@ require("colors");
 require("dotenv").config();
 
 const connectDB = require("./database/connection");
-const auth = require("./middlewares/auth");
+// const auth = require("./middlewares/auth");
 
 const app = express();
+// parse application/json
+app.use(express.json());
 
 require("./config/config-passport");
 
 const PORT = process.env.PORT || 5050;
 
-// parse application/json
-app.use(express.json());
 // cors
 app.use(cors());
 
 const contactsRouter = require("./routes/api/contactsRouter");
-const usersRouter = require("./routes/api/usersRouter");
 const authRouter = require("./routes/api/authRouter");
+const usersRouter = require("./routes/api/usersRouter");
 app.use("/api/contacts", contactsRouter);
-app.use("/api/auth", authRouter);
-app.use("/api/users", auth, usersRouter);
+app.use("/api/users", authRouter);
+app.use("/api/users", usersRouter);
 
 // catch 404 and forward to error handler
 app.use((req, res, next) => {
