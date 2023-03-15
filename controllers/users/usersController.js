@@ -1,4 +1,8 @@
-const { getUsers, getOneUser } = require("../../services/usersService");
+const {
+  getUsers,
+  getOneUser,
+  getOneUserByToken,
+} = require("../../services/usersService");
 
 const getAllUsers = async (req, res, next) => {
   //   const { _id: userId } = req.user;
@@ -36,4 +40,19 @@ const getUserById = async (req, res, next) => {
   }
 };
 
-module.exports = { getAllUsers, getUserById };
+const getUserByToken = async (req, res, next) => {
+  try {
+    const { token } = req.params;
+    const userByToken = await getOneUserByToken(token);
+
+    return res.json({
+      status: 200,
+      data: userByToken,
+    });
+  } catch (error) {
+    res.status(400).json({ message: error.message });
+    next(error);
+  }
+};
+
+module.exports = { getAllUsers, getUserById, getUserByToken };

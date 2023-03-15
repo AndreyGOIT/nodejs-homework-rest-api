@@ -2,7 +2,7 @@ const express = require("express");
 
 const router = express.Router();
 
-// const { authMiddleware } = require("../middleware/authMiddleware");
+const auth = require("../../middlewares/auth");
 const asyncHandler = require("express-async-handler");
 
 const {
@@ -20,11 +20,11 @@ router.get("/", asyncHandler(getAllConts));
 
 router.get("/:id", asyncHandler(getContById));
 
-router.post("/", asyncHandler(createContact));
+router.post("/", auth, asyncHandler(createContact));
 
-router.delete("/:id", asyncHandler(delContact));
+router.delete("/:id", auth, asyncHandler(delContact));
 
-router.put("/:id", asyncHandler(updateCont));
+router.put("/:id", auth, asyncHandler(updateCont));
 
 router.patch("/:contactId/favorite", asyncHandler(updateStatus));
 
