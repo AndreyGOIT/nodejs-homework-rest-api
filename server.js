@@ -10,6 +10,7 @@ const connectDB = require("./database/connection");
 const app = express();
 // parse application/json
 app.use(express.json());
+app.use(express.static("public"));
 
 require("./config/config-passport");
 
