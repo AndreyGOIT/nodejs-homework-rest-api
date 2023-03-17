@@ -3,6 +3,7 @@ const { response } = require("express");
 const jwt = require("jsonwebtoken");
 const User = require("../models/userModel");
 const { NotAuthorisedError } = require("./errors");
+const gravatar = require("gravatar");
 
 const registration = async (email, password) => {
   const existingUser = await User.findOne({ email });
@@ -16,7 +17,9 @@ const registration = async (email, password) => {
     });
   }
   try {
-    const newUser = new User({ email, password });
+    const avatarURL = gravatar.url(email);
+
+    const newUser = new User({ email, password, avatarURL });
     newUser.setPassword(password);
 
     newUser.save();
