@@ -12,10 +12,11 @@ const getAllUsers = async (req, res, next) => {
   //   limit = Number(limit);
 
   try {
-    const contacts = await getUsers();
+    const users = await getUsers();
+    console.log(users);
     return res.json({
-      status: 200,
-      data: contacts,
+      status: "200",
+      data: users,
       //   skip,
       //   limit,
     });

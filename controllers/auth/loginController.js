@@ -5,7 +5,11 @@ const loginController = async (req, res) => {
 
   const token = await login(email, password);
 
-  return res.json({ status: "success", data: { token } });
+  // return res.json({ status: "success", data: { token } });
+  return res.json({
+    status: "success",
+    token: token,
+  });
 };
 
 module.exports = loginController;

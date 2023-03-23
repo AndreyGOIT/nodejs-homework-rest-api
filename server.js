@@ -1,7 +1,8 @@
 const createError = require("http-errors");
 const express = require("express");
 const path = require("path");
-const fs = require("fs").promises;
+const fs = require("fs/promises");
+// const moment = require("moment");
 const cors = require("cors");
 const multer = require("multer");
 const uploadDir = path.join(process.cwd(), "uploads");
@@ -16,7 +17,14 @@ const connectDB = require("./database/connection");
 const app = express();
 // parse application/json
 app.use(express.json());
-app.use(express.static("public"));
+app.use(express.static("/public"));
+
+// app.use(async (req, res, next) => {
+//   const { method, url } = req;
+//   const date = moment().format("DD-MM-YYYY_hh:mm:ss");
+//   await fs.appendFile("server.log", `\n${method} ${url} ${date}`);
+//   next();
+// });
 
 const storage = multer.diskStorage({
   destination: (req, file, cb) => {
@@ -33,7 +41,7 @@ const storage = multer.diskStorage({
 const upload = multer({ storage: storage });
 
 app.post("/upload", upload.single("picture"), async (req, res, next) => {
-  const { description } = req.body;
+  // const { description } = req.body;
   const { path: temporaryName, originalname } = req.file;
   const fileName = path.join(storeImage, originalname);
   try {
@@ -43,8 +51,8 @@ app.post("/upload", upload.single("picture"), async (req, res, next) => {
     return next(createError(500));
   }
   res.json({
-    description,
-    message: "Image uploaded successfully",
+    // description,
+    message: "Image uploaded successfully!!!",
     status: 200,
   });
 });
@@ -59,9 +67,12 @@ app.use(cors());
 const contactsRouter = require("./routes/api/contactsRouter");
 const authRouter = require("./routes/api/authRouter");
 const usersRouter = require("./routes/api/usersRouter");
+// const uploadsRouter = require("./routes/api/uploadsRouter");
+
 app.use("/api/contacts", contactsRouter);
 app.use("/api/users", authRouter);
 app.use("/api/users", usersRouter);
+// app.use("/api/users", uploadsRouter);
 
 // catch 404 and forward to error handler
 app.use((req, res, next) => {
@@ -80,11 +91,12 @@ app.use((req, res, next) => {
 
 // error handler
 app.use((err, req, res, next) => {
-  console.log("status 500");
-  res.status(500).json({
+  const { status = 500 } = err;
+  const message = status === 500 ? "Server error" : err.message;
+  res.status(status).json({
     status: "fail",
     code: 500,
-    message: err.message,
+    message,
     data: "Internal Server Error",
   });
   next();
