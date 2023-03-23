@@ -1,4 +1,5 @@
-const Cont = require("../models/contactModel");
+// const Cont = require("../models/contactModel");
+const { Cont } = require("../models/contactModel");
 console.log(Cont);
 
 const getAllcontacts = async (userId, { skip, limit }) => {
@@ -22,7 +23,11 @@ const createCont = async ({ name, email, phone }) => {
 };
 
 const updateCont = async (id, { name, email, phone }) => {
-  const contact = await Cont.findByIdAndUpdate(id, { name, email, phone });
+  const contact = await Cont.findByIdAndUpdate(
+    id,
+    { name, email, phone },
+    { new: true }
+  );
   return contact;
 };
 

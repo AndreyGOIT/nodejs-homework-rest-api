@@ -9,7 +9,7 @@ const auth = (req, res, next) => {
         status: "error",
         code: 401,
         message: "Unauthorized",
-        data: "Unauthurized",
+        data: "Unauthorized",
       });
     }
 
