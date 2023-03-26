@@ -1,12 +1,9 @@
-const createError = require("http-errors");
 const express = require("express");
 const path = require("path");
-const fs = require("fs/promises");
-// const moment = require("moment");
 const cors = require("cors");
 const multer = require("multer");
-const uploadDir = path.join(process.cwd(), "uploads");
-const storeImage = path.join(process.cwd(), "images");
+const fs = require("fs/promises");
+const { nanoid } = require("nanoid");
 
 require("colors");
 require("dotenv").config();
@@ -15,64 +12,57 @@ const connectDB = require("./database/connection");
 // const auth = require("./middlewares/auth");
 
 const app = express();
+// cors
+app.use(cors());
 // parse application/json
 app.use(express.json());
-app.use(express.static("/public"));
+app.use(express.static("public"));
 
-// app.use(async (req, res, next) => {
-//   const { method, url } = req;
-//   const date = moment().format("DD-MM-YYYY_hh:mm:ss");
-//   await fs.appendFile("server.log", `\n${method} ${url} ${date}`);
-//   next();
-// });
+// const books = [];
 
-const storage = multer.diskStorage({
-  destination: (req, file, cb) => {
-    cb(null, uploadDir);
-  },
+const tempDir = path.join(__dirname, "temp");
+
+const multerConfig = multer.diskStorage({
+  destination: tempDir,
   filename: (req, file, cb) => {
-    cb(null, Date.now() + path.extname(file.originalname));
-  },
-  limits: {
-    fileSize: 1024 * 1024 * 5,
+    cb(null, file.originalname);
   },
 });
 
-const upload = multer({ storage: storage });
+const upload = multer({
+  storage: multerConfig,
+});
 
-app.post("/upload", upload.single("picture"), async (req, res, next) => {
-  // const { description } = req.body;
-  const { path: temporaryName, originalname } = req.file;
-  const fileName = path.join(storeImage, originalname);
-  try {
-    await fs.rename(temporaryName, fileName);
-  } catch (error) {
-    await fs.unlink(temporaryName);
-    return next(createError(500));
-  }
-  res.json({
-    // description,
-    message: "Image uploaded successfully!!!",
-    status: 200,
-  });
+const avatarDir = path.join(__dirname, "public", "avatars");
+const { User } = require("./models/userModel");
+// upload.fields([{name: "avatar", maxCount: 1}, {name: "subAvatar", maxCount: 2}])
+// upload.array("avatar", 8)
+app.post("/api/avatars", upload.single("avatar"), async (req, res) => {
+  const { path: tempUpload, originalname } = req.file;
+  const resultUpload = path.join(avatarDir, originalname);
+  await fs.rename(tempUpload, resultUpload);
+
+  const avatar = path.join("avatars", originalname);
+  const newUser = {
+    id: nanoid(),
+    avatar,
+  };
+  const users = await User.find();
+  users.push(newUser);
+  res.status(201).json(newUser);
 });
 
 require("./config/config-passport");
 
 const PORT = process.env.PORT || 5050;
 
-// cors
-app.use(cors());
-
 const contactsRouter = require("./routes/api/contactsRouter");
 const authRouter = require("./routes/api/authRouter");
 const usersRouter = require("./routes/api/usersRouter");
-// const uploadsRouter = require("./routes/api/uploadsRouter");
 
 app.use("/api/contacts", contactsRouter);
 app.use("/api/users", authRouter);
 app.use("/api/users", usersRouter);
-// app.use("/api/users", uploadsRouter);
 
 // catch 404 and forward to error handler
 app.use((req, res, next) => {
@@ -102,22 +92,7 @@ app.use((err, req, res, next) => {
   next();
 });
 
-const isAccessible = (path) => {
-  return fs
-    .access(path)
-    .then(() => true)
-    .catch(() => false);
-};
-
-const createFolderIsNotExist = async (folder) => {
-  if (!(await isAccessible(folder))) {
-    await fs.mkdir(folder);
-  }
-};
-
 app.listen(PORT, async () => {
-  createFolderIsNotExist(uploadDir);
-  createFolderIsNotExist(storeImage);
   console.log("db connecting...".bgGray.bold.italic);
   await connectDB();
   console.log(

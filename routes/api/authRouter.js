@@ -1,12 +1,10 @@
 const express = require("express");
 
-const validateBody = require("../../middlewares/validateBody");
-
 const { schemas } = require("../../models/userModel");
 
 const router = express.Router();
 
-const auth = require("../../middlewares/auth");
+const { auth, validateBody } = require("../../middlewares");
 
 const asyncHandler = require("express-async-handler");
 
