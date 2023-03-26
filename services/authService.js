@@ -42,11 +42,12 @@ const registration = async (email, password) => {
 
 const login = async (req, res) => {
   const { email, password } = req.body;
+
   const user = await User.findOne({ email });
   if (!user) {
     throw RequestError(401, "Email or password wrong!");
   }
-  const passwordCompare = await bcrypt.compare(password, user.password);
+  const passwordCompare = await bcrypt.compare(password, user?.password || "");
   if (!passwordCompare) {
     throw RequestError(401, "Email or password wrong!");
   }
@@ -54,7 +55,15 @@ const login = async (req, res) => {
     id: user._id,
   };
   const token = jwt.sign(payload, SECRET_KEY, { expiresIn: "2h" });
-  res.json(token);
+
+  await User.findByIdAndUpdate(user._id, { token });
+
+  res.status(200).json({
+    code: 200,
+    message: "Login success!",
+    token,
+    // data: { email: user.email, token: user.token },
+  });
 };
 // const login = async (email, password) => {
 //   const user = await User.findOne({ email });
@@ -102,8 +111,11 @@ const logout = async (id) => {
   }
   try {
     user.token = null;
+    const updatedUser = await user.save();
+
     return response.status(202).json({
       message: "No content",
+      data: updatedUser,
     });
   } catch (error) {
     console.log(error.message);

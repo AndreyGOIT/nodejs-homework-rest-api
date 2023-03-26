@@ -5,7 +5,7 @@ const logoutController = async (req, res) => {
 
   await logout(id);
 
-  return res.json({ status: "success" });
+  return res.json({ status: "L success" });
 };
 
 module.exports = logoutController;
