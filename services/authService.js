@@ -35,7 +35,7 @@ const registration = async (email, password) => {
     const mail = {
       to: email,
       subject: "Verify email",
-      html: `<a target="_blank" href="${BASE_URL}/api/auth/verify/${verificationToken}">Click to verify your email</a> `,
+      html: `<a target="_blank" href="${BASE_URL}/api/auth/verify/${verificationToken}">Click to verify your email</a>`,
     };
 
     await sendEmail(mail);
@@ -60,7 +60,7 @@ const login = async (req, res) => {
   const { email, password } = req.body;
 
   const user = await User.findOne({ email });
-  if (!user) {
+  if (!user || !user.verify) {
     throw RequestError(401, "Email or password wrong!");
   }
   const passwordCompare = await bcrypt.compare(password, user?.password || "");
@@ -138,8 +138,23 @@ const logout = async (id) => {
   }
 };
 
+const verify = async (req, res) => {
+  const { verificationToken } = req.params;
+  const user = await User.findOne({ verificationToken });
+  if (!user) {
+    throw RequestError(404);
+  }
+  await User.findByIdAndUpdate(user._id, {
+    verify: true,
+    verificationToken: "",
+  });
+
+  res.json({ message: "Email verify success" });
+};
+
 module.exports = {
   registration,
   login,
   logout,
+  verify,
 };
