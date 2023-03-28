@@ -3,11 +3,11 @@ const {
   getUserById,
   getUserByToken,
 } = require("./usersController");
-const verificationsController = require('./verificationsController');
+const verificationController = require("./verificationsController");
 
 module.exports = {
   getAllUsers,
   getUserById,
   getUserByToken,
-  verificationsController,
+  verificationController,
 };
