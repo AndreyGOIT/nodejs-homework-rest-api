@@ -59,12 +59,12 @@ const PORT = process.env.PORT || 5050;
 const contactsRouter = require("./routes/api/contactsRouter");
 const authRouter = require("./routes/api/authRouter");
 const usersRouter = require("./routes/api/usersRouter");
-const verificationsRouter = require("./routes/api/verificationsRouter");
+const verificationRouter = require("./routes/api/verificationRouter");
 
 app.use("/api/contacts", contactsRouter);
 app.use("/api/users", authRouter);
 app.use("/api/users", usersRouter);
-app.use("/api/users", verificationsRouter);
+app.use("/api/users", verificationRouter);
 
 // catch 404 and forward to error handler
 app.use((req, res, next) => {

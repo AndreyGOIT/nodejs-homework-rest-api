@@ -1,9 +1,0 @@
-const express = require("express");
-
-const router = express.Router();
-
-const { verificationController } = require("../../controllers/users/index");
-
-router.get("/verify/:verificationToken", verificationController);
-
-module.exports = router;

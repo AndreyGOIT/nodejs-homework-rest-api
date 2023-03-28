@@ -1,9 +1,11 @@
 const bcrypt = require("bcrypt");
 const { response } = require("express");
 const jwt = require("jsonwebtoken");
+const { nanoid } = require("nanoid");
 const { User } = require("../models/userModel");
 const RequestError = require("../helpers/RequestError");
-const { SECRET_KEY } = process.env;
+const { sendEmail } = require("../helpers/index");
+const { SECRET_KEY, BASE_URL } = process.env;
 // const { NotAuthorisedError } = require("./errors");
 const gravatar = require("gravatar");
 
@@ -11,18 +13,32 @@ const registration = async (email, password) => {
   const existingUser = await User.findOne({ email });
 
   if (existingUser) {
-    return response.status(409).json({
-      status: "error",
-      code: 409,
-      message: "Email in use",
-      data: "Conflict",
-    });
+    throw RequestError(409, "Email in use");
+    // return response.status(409).json({
+    //   status: "error",
+    //   code: 409,
+    //   message: "Email in use",
+    //   data: "Conflict",
+    // });
   }
   try {
     const avatarURL = gravatar.url(email);
-
-    const newUser = new User({ email, password, avatarURL });
+    const verificationToken = nanoid();
+    const newUser = new User.create({
+      email,
+      password,
+      avatarURL,
+      verificationToken,
+    });
     newUser.setPassword(password);
+
+    const mail = {
+      to: email,
+      subject: "Verify email",
+      html: `<a target="_blank" href="${BASE_URL}/api/auth/verify/${verificationToken}">Click to verify your email</a> `,
+    };
+
+    await sendEmail(mail);
 
     newUser.save();
 
