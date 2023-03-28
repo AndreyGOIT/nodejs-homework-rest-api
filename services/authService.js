@@ -14,13 +14,8 @@ const registration = async (email, password) => {
 
   if (existingUser) {
     throw RequestError(409, "Email in use");
-    // return response.status(409).json({
-    //   status: "error",
-    //   code: 409,
-    //   message: "Email in use",
-    //   data: "Conflict",
-    // });
   }
+
   try {
     const avatarURL = gravatar.url(email);
     const verificationToken = nanoid();
