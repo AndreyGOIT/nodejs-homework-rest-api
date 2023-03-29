@@ -64,8 +64,8 @@ const schemas = {
   verifyEmailSchema,
 };
 
-userSchema.methods.setPassword = function (password) {
-  this.password = bcrypt.hashSync(password, bcrypt.genSaltSync(10));
+userSchema.methods.setPassword = async function (password) {
+  this.password = await bcrypt.hash(password, bcrypt.genSaltSync(10));
 };
 
 userSchema.methods.validPassword = function (password) {

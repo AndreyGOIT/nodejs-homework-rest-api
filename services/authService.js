@@ -19,13 +19,15 @@ const registration = async (email, password) => {
   try {
     const avatarURL = gravatar.url(email);
     const verificationToken = nanoid();
-    const newUser = new User.create({
+    const hashPassword = await bcrypt.hash(password, 10);
+    const newUser = new User({
       email,
-      password,
+      password: hashPassword,
       avatarURL,
       verificationToken,
     });
-    newUser.setPassword(password);
+    console.log(newUser);
+    // newUser.setPassword(password);
 
     const mail = {
       to: email,
@@ -35,7 +37,7 @@ const registration = async (email, password) => {
 
     await sendEmail(mail);
 
-    newUser.save();
+    await newUser.save();
 
     return response.status(201).json({
       status: "success",
@@ -65,6 +67,7 @@ const login = async (req, res) => {
   const payload = {
     id: user._id,
   };
+
   const token = jwt.sign(payload, SECRET_KEY, { expiresIn: "2h" });
 
   await User.findByIdAndUpdate(user._id, { token });

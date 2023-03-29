@@ -18,11 +18,12 @@ const {
 } = require("../../controllers/auth/index");
 
 // signup routes
-router.post(
-  "/register",
-  validateBody(schemas.registerSchema),
-  asyncHandler(registration)
-);
+// router.post(
+//   "/register",
+//   validateBody(schemas.registerSchema),
+//   asyncHandler(registration)
+// );
+router.post("/register", asyncHandler(registration));
 router.get("/verify/:verificationToken", asyncHandler(verify));
 router.post(
   "/verify",
