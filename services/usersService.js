@@ -7,7 +7,7 @@ const getUsers = async (req, res) => {
     console.log(User);
     const users = await User.find();
     if (!users) {
-      throw RequestError(404, "Not found");
+      throw RequestError(404, "Not found any users");
     }
     res.status(200).json(users);
   } catch (error) {
@@ -25,7 +25,6 @@ const getOneUser = async (req, res) => {
     res.status(200).json(user);
   } catch (error) {
     console.log(error.message);
-    // next(error);
   }
 };
 

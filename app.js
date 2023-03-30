@@ -28,7 +28,7 @@ app.use("/api/users", authRouter);
 app.use("/api/users", usersRouter);
 
 // // catch 404 and forward to error handler
-app.use((req, res) => {
+app.use((req, res, next) => {
   console.log("404: Not found");
   res.status(404).json({
     status: "error",
@@ -39,6 +39,7 @@ app.use((req, res) => {
   /api/list - get message if user is authenticated`,
     data: "Not found",
   });
+  next();
 });
 
 // // error handler

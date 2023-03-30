@@ -64,18 +64,25 @@ const login = async (req, res) => {
   if (!passwordCompare) {
     throw RequestError(401, "Email or password wrong!");
   }
-  const payload = {
-    id: user._id,
-  };
+  // const payload = {
+  //   id: user._id,
+  // };
 
-  const token = jwt.sign(payload, SECRET_KEY, { expiresIn: "2h" });
+  // const token = jwt.sign(payload, SECRET_KEY, { expiresIn: "2h" });
+  const { _id: id } = user;
 
-  await User.findByIdAndUpdate(user._id, { token });
+  const token = jwt.sign({ id }, SECRET_KEY, {
+    expiresIn: "1h",
+  });
 
+  const userWithToken = await User.findByIdAndUpdate(user._id, { token });
+
+  console.log("login-token", token);
   res.status(200).json({
     code: 200,
     message: "Login success!",
     token,
+    data: userWithToken,
     // data: { email: user.email, token: user.token },
   });
 };
