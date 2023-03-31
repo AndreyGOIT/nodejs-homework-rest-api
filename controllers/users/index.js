@@ -4,4 +4,8 @@ const {
   getUserByToken,
 } = require("./usersController");
 
-module.exports = { getAllUsers, getUserById, getUserByToken };
+module.exports = {
+  getAllUsers,
+  getUserById,
+  getUserByToken,
+};

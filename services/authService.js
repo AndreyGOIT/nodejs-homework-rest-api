@@ -1,9 +1,11 @@
 const bcrypt = require("bcrypt");
 const { response } = require("express");
 const jwt = require("jsonwebtoken");
+const { nanoid } = require("nanoid");
 const { User } = require("../models/userModel");
 const RequestError = require("../helpers/RequestError");
-const { SECRET_KEY } = process.env;
+const { sendEmail } = require("../helpers/index");
+const { SECRET_KEY, BASE_URL } = process.env;
 // const { NotAuthorisedError } = require("./errors");
 const gravatar = require("gravatar");
 
@@ -11,20 +13,31 @@ const registration = async (email, password) => {
   const existingUser = await User.findOne({ email });
 
   if (existingUser) {
-    return response.status(409).json({
-      status: "error",
-      code: 409,
-      message: "Email in use",
-      data: "Conflict",
-    });
+    throw RequestError(409, "Email in use");
   }
+
   try {
     const avatarURL = gravatar.url(email);
+    const verificationToken = nanoid();
+    const hashPassword = await bcrypt.hash(password, 10);
+    const newUser = new User({
+      email,
+      password: hashPassword,
+      avatarURL,
+      verificationToken,
+    });
+    console.log(newUser);
+    // newUser.setPassword(password);
 
-    const newUser = new User({ email, password, avatarURL });
-    newUser.setPassword(password);
+    const mail = {
+      to: email,
+      subject: "Verify email",
+      html: `<a target="_blank" href="${BASE_URL}/api/auth/verify/${verificationToken}">Click to verify your email</a>`,
+    };
 
-    newUser.save();
+    await sendEmail(mail);
+
+    await newUser.save();
 
     return response.status(201).json({
       status: "success",
@@ -44,24 +57,32 @@ const login = async (req, res) => {
   const { email, password } = req.body;
 
   const user = await User.findOne({ email });
-  if (!user) {
+  if (!user || !user.verify) {
     throw RequestError(401, "Email or password wrong!");
   }
   const passwordCompare = await bcrypt.compare(password, user?.password || "");
   if (!passwordCompare) {
     throw RequestError(401, "Email or password wrong!");
   }
-  const payload = {
-    id: user._id,
-  };
-  const token = jwt.sign(payload, SECRET_KEY, { expiresIn: "2h" });
+  // const payload = {
+  //   id: user._id,
+  // };
 
-  await User.findByIdAndUpdate(user._id, { token });
+  // const token = jwt.sign(payload, SECRET_KEY, { expiresIn: "2h" });
+  const { _id: id } = user;
 
+  const token = jwt.sign({ id }, SECRET_KEY, {
+    expiresIn: "1h",
+  });
+
+  const userWithToken = await User.findByIdAndUpdate(user._id, { token });
+
+  console.log("login-token", token);
   res.status(200).json({
     code: 200,
     message: "Login success!",
     token,
+    data: userWithToken,
     // data: { email: user.email, token: user.token },
   });
 };
@@ -122,8 +143,23 @@ const logout = async (id) => {
   }
 };
 
+const verify = async (req, res) => {
+  const { verificationToken } = req.params;
+  const user = await User.findOne({ verificationToken });
+  if (!user) {
+    throw RequestError(404);
+  }
+  await User.findByIdAndUpdate(user._id, {
+    verify: true,
+    verificationToken: "",
+  });
+
+  res.json({ message: "Email verify success" });
+};
+
 module.exports = {
   registration,
   login,
   logout,
+  verify,
 };

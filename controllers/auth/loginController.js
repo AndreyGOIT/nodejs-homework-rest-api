@@ -8,7 +8,7 @@ const loginController = async (req, res) => {
   // return res.json({ status: "success", data: { token } });
   return res.json({
     status: "success",
-    // token: token,
+    token: token,
   });
 };
 
